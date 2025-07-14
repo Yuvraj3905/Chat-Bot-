@@ -29,6 +29,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import ReactMarkdown from 'react-markdown';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { toast } from 'sonner';
 
@@ -69,6 +70,13 @@ export default function ChatInterface() {
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
   const [editingSessionName, setEditingSessionName] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setIsMobile(window.innerWidth < 640);
+    }
+  }, []);
 
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -781,9 +789,15 @@ export default function ChatInterface() {
                             : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700'
                         }`}
                       >
-                        <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
-                          {message.text}
-                        </p>
+                        {message.sender === 'bot' ? (
+  <ReactMarkdown>
+    {message.text}
+  </ReactMarkdown>
+) : (
+  <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
+    {message.text}
+  </p>
+)}
                       </Card>
 
                       {/* Timestamp and Status */}
@@ -869,7 +883,7 @@ export default function ChatInterface() {
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder={
-                    window.innerWidth < 640
+                    isMobile
                       ? 'Type your message...'
                       : 'Type your message... (Press Enter to send, Shift+Enter for new line)'
                   }
